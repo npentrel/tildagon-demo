@@ -5,8 +5,6 @@ import random
 from app_components import YesNoDialog, clear_background
 from events.input import Buttons, BUTTON_TYPES
 
-__app_export__ = SnakeApp
-
 class SnakeApp(app.App):
     def __init__(self):
         # Need to call to access overlays
@@ -131,3 +129,5 @@ class SnakeApp(app.App):
 
         if self.dialog:
             self.dialog.draw(ctx)
+
+__app_export__ = SnakeApp
