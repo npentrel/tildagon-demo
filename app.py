@@ -1,13 +1,55 @@
-from app import app
+import app
+# Requests is a great library for working with API's, and it's included
+# in the badge libraries, so let's use it here!
+#
+# See https://requests.readthedocs.io/ for more information on how to use
+# it properly!
+import requests
 
-class HelloWorld(App):
-  def __init__():
-    pass
+from app_components import Menu, Notification, clear_background
+from events.input import Buttons, BUTTON_TYPES
 
-  def update():
-    pass:
 
-  def draw():
-    ctx.move_to(0, 0).text("Hello, world!"]
+class FilmScheduleApp(app.App):
+    def __init__(self):
+        # When we load, grab all the API data in JSON format
+        # Requests will automatically convert this to a python dict
+        # for us, it really is that good!
+        self.schedule = requests.get("https://emffilms.org/schedule.json").json()
+        self.button_states = Buttons(self)
+        # Setup a list to hold our film titles
+        main_menu_items = []
+        # Iterate over the films, adding the title to the menu
+        for film in self.schedule['films']:
+            text = f"{film['title']}"
+            main_menu_items.append(text)
+        # Create the menu object
+        self.menu = Menu(
+            self,
+            main_menu_items,
+            select_handler=self.select_handler,
+            back_handler=self.back_handler,
+        )
+        self.notification = None
 
-__app_export__ = HelloWorld
+    def select_handler(self, item):
+        self.notification = Notification('You selected "' + item + '"!')
+
+    def back_handler(self):
+        self.minimise()
+
+    def update(self, delta):
+        self.menu.update(delta)
+        if self.notification:
+            self.notification.update(delta)
+
+
+    def draw(self, ctx):
+        clear_background(ctx)
+        # Display the menu on the device
+        # as a scrollable list of film titles
+        self.menu.draw(ctx)
+        if self.notification:
+            self.notification.draw(ctx)
+
+__app_export__ = FilmScheduleApp
